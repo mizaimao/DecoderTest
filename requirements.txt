@@ -1,0 +1,8 @@
+setuptools
+numpy
+tqdm
+torch
+torchvision
+torchaudio
+jupyter
+pandas
