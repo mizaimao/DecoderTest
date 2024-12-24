@@ -2,58 +2,34 @@ from typing import List, Tuple
 import torch
 import tqdm
 
-from doe.models.advanced import ChickenAdvanced
+from doe.models import get_models
 from doe.models.blocks import get_valid_loss
-from doe.data.dataloaders import TextLoader
+from doe.data.dataloaders import get_loader
+from doe.configs.default import DefaultConfig
 
 
 DEVICE: str = "cuda"
-SEED: int = 421
-
-TRAIN_VAL_SPLIT: int = 0.8
-
-batch_size: int = 8
-epochs: int = (
-    100  # Not exactly epochs by definitaion but more like an iteration number.
-)
-step_size: int = 128  # Max num characters to look back.
-embedding_dim: int = 128
-n_blocks: int = 4
-n_heads: int = 4
-lr: float = 3e-4
-dropout: float = 0.2
-preview_size: int = 200
-print_every: int = 1000
+config: DefaultConfig = DefaultConfig()
 
 
 # Defined functions to feed the data.
-torch.manual_seed(SEED)
+torch.manual_seed(config.seed)
 torch.set_default_device(DEVICE)
 if DEVICE == "mps":
     MAX_MEMORY = 16  # In GB.
     torch.mps.set_per_process_memory_fraction(MAX_MEMORY / 64)
 
 
-loader = TextLoader(
-    step_size=step_size,
-    batch_size=batch_size,
-    file_path="/home/frank/Projects/DecoderTest/text.txt",
-    train_val_split=TRAIN_VAL_SPLIT,
+loader = get_loader("text", config=config)
+model = get_models(
+    "advanced", config=config, vocabulary_size=loader.get_vocabulary_size()
 )
-vocabulary_size: int = loader.get_vocabulary_size()
-x_batch, y_batch = loader.get_data()
-
-model = ChickenAdvanced(
-    vocabulary_size=vocabulary_size,
-    step_size=step_size,  # Max num characters to look back.
-    embedding_dim=embedding_dim,
-    n_blocks=n_blocks,
-    n_heads=n_heads,
-    dropout=dropout,
-)
+epochs: int = config.epochs
+print_every: int = config.print_every
+preview_size: int = config.preview_size
 
 # Simple training loop.
-optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr)
 
 for step_i in tqdm.tqdm(range(epochs), total=epochs):
     # Start iteration with data.
