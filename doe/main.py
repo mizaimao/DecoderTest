@@ -40,7 +40,6 @@ for step_i in tqdm.tqdm(range(epochs), total=epochs):
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
-
     if step_i % print_every == 0 or step_i == epochs - 1:
         val_loss: float = get_valid_loss(model=model, loader=loader)
         print(loss.item(), val_loss.item())
