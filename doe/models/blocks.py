@@ -1,4 +1,4 @@
-from typing import *
+from typing import Dict
 import torch.nn as nn
 from torch.nn import functional as F
 import torch
@@ -116,3 +116,15 @@ class DecoderBlock(nn.Module):
         x = self.norm_layer_2(x)
         x = self.feedforward(x) + x  # Same here, residual is added.
         return x
+
+@torch.no_grad()
+def get_valid_loss(
+    model: nn.Module,
+    loader
+):
+    model.eval()
+    x, y = loader.get_data("valid")
+    _logits, loss = model(x, y)
+
+    model.train()
+    return loss
