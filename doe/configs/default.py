@@ -22,4 +22,5 @@ class DefaultConfig:
 
     input_path: str = "/home/frank/Projects/DecoderTest/inputs/news20_concated.txt"
 
-    
+
+    save_loc: str = "/home/frank/Projects/DecoderTest/saved_models/"
