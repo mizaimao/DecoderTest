@@ -3,6 +3,25 @@ from typing import Dict, List, Tuple
 from pathlib import Path
 import torch
 
+from doe.data.tokenizers import get_tokenizer
+from doe.configs.default import DefaultConfig
+
+
+def get_loader(name: str = "text", config: DefaultConfig = None):
+    loader = None
+    if name == "text":
+        loader: TextLoader = TextLoader(
+            step_size=config.step_size,
+            batch_size=config.batch_size,
+            file_path=config.input_path,
+            train_val_split=config.train_valid_split,
+        )
+
+    else:
+        raise NotImplementedError
+
+    return loader
+
 
 class TextLoader:
 
@@ -10,43 +29,29 @@ class TextLoader:
         self,
         step_size: int,
         batch_size: int,
-        file_path: str = "/home/frank/Projects/DecoderTest/text.txt",
+        file_path: str = "/home/frank/Projects/DecoderTest/inputs/text.txt",
         train_val_split: float = 0.8,
     ):
         # Sanity checks.
         if not Path(file_path).is_file():
             raise FileNotFoundError
+        self.tokenizer = get_tokenizer(file_path=file_path, name="tiktoken")
 
         self.step_size: int = step_size
         self.batch_size: int = batch_size
-
-        # Load the file contents.
-        self.text: str
-        with open(file_path, "r", encoding="utf-8") as f:
-            self.text = f.read()
-        # Create mapping info.
-        chars: List[str] = sorted(list(set(self.text)))
-        self.stoi: Dict[str, int] = {ch: i for i, ch in enumerate(chars)}
-        self.itos: Dict[int, str] = {i: ch for i, ch in enumerate(chars)}
-        self.vocabulary_size: int = len(chars)
 
         # Get split subsets.
         self.train_data, self.valid_data = self.split_data(train_val_split)
 
     def get_vocabulary_size(self):
-        return self.vocabulary_size
+        return self.tokenizer.vocabulary_size
 
-    # Convert string into a list of integers.
-    def encode(self, s: str) -> List[int]:
-        return [self.stoi[c] for c in s]
-
-    # Convert output logits back to a string.
     def decode(self, numbers: List[int]) -> str:
-        return "".join([self.itos[i] for i in numbers])
+        return self.tokenizer.decode(numbers=numbers)
 
     def split_data(self, split: float) -> Tuple[torch.Tensor, torch.Tensor]:
         # Create a tensor to hold the encoded input.
-        data: torch.Tensor = torch.tensor(self.encode(self.text), dtype=torch.long)
+        data: torch.Tensor = torch.tensor(self.tokenizer.encode(None), dtype=torch.long)
         print("Data loaded with shape and type:", data.shape, data.dtype)
 
         # Now separate the data into Train and Valid.
