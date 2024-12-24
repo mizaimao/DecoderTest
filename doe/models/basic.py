@@ -50,11 +50,5 @@ class ChickenSimple(nn.Module):
             # Now append the result.
             index = torch.concat((index, predicted_index), dim=1)
         return index
-        
 
-m = ChickenSimple(vocabulary_size)
-out = m(x_batch, y_batch)
-# print(out[0].shape, out[1])
-# print(out)
-        
         
