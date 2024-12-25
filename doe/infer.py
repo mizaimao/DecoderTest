@@ -18,11 +18,7 @@ model = get_models(
     "advanced", config=config, vocabulary_size=loader.get_vocabulary_size()
 )
 
-model.load_state_dict(
-    torch.load(
-        model_loc, weights_only=True
-    )
-)
+model.load_state_dict(torch.load(model_loc, weights_only=True))
 model.eval()
 
 # Now take a preview of the generated contents.
