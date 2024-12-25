@@ -50,7 +50,9 @@ class MIDIConfig:
 
     tokenizer: str = "miditok"
 
-    input_path: str = "/home/frank/Projects/DecoderTest/inputs/bachMIDI/wtcbk_bwv_merged/"
+    input_path: str = (
+        "/home/frank/Projects/DecoderTest/inputs/bachMIDI/wtcbk_bwv_merged/"
+    )
     save_loc: str = "/home/frank/Projects/DecoderTest/saved_models/"
 
 

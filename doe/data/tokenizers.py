@@ -24,7 +24,7 @@ class CharTokenizer:
     # Convert output logits back to a string.
     def decode(self, numbers: List[int]) -> str:
         return "".join([self.itos[i] for i in numbers])
-    
+
 
 class MidiTokWrapper:
 
@@ -33,7 +33,6 @@ class MidiTokWrapper:
         from symusic import Score
 
         vol_size: int = 400
-
 
         # Creating a multitrack tokenizer, read the doc to explore all the parameters
         config = TokenizerConfig(num_velocities=16, use_chords=True, use_programs=True)
@@ -57,22 +56,19 @@ class MidiTokWrapper:
 
             self.tokens = []
             for x in file_path:
-                self.tokens.extend(
-                    self.tokenizer.encode(Score(x))
-                )
+                self.tokens.extend(self.tokenizer.encode(Score(x)))
             self.vocabulary_size = len(self.tokens)
             # breakpoint()
 
         else:
             raise FileNotFoundError
-        
 
     def encode(self, s: str) -> List[int]:
         if s is None:
             return self.tokens
         else:
             raise NotImplementedError
-        
+
     def decode(self, numbers: List[int]):
         if len(numbers) == 1:
             numbers = numbers[0]
@@ -81,8 +77,6 @@ class MidiTokWrapper:
         )  # PyTorch, Tensorflow and Numpy tensors are supported # My ass
 
         return converted_back_midi
-
-
 
 
 class TikTokenWrapper:
@@ -94,34 +88,29 @@ class TikTokenWrapper:
 
         self.enc = tiktoken.get_encoding("gpt2")
         self.vocabulary_size: int = self.enc.max_token_value + 1
-        
+
     def encode(self, s: str) -> List[int]:
         if s is None:
             s = self.text
         return self.enc.encode(s)
-        
+
     def decode(self, numbers: List[int]) -> str:
         return self.enc.decode(numbers)
 
+
 def get_tokenizer(
-        file_path: str,
-        name: str = "simple",
-    ):
+    file_path: str,
+    name: str = "simple",
+):
 
     if name == "simple":
-        return CharTokenizer(
-            file_path=file_path
-        )
+        return CharTokenizer(file_path=file_path)
 
     elif name == "tiktoken":
-        return TikTokenWrapper(
-            file_path=file_path
-        )
-    
+        return TikTokenWrapper(file_path=file_path)
+
     elif name == "miditok":
-        return MidiTokWrapper(
-            file_path=file_path
-        )
+        return MidiTokWrapper(file_path=file_path)
 
     else:
         raise NotImplementedError

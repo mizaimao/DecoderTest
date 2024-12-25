@@ -155,7 +155,7 @@ def get_valid_loss(model: nn.Module, loader):
 def get_average_loss(model: nn.Module, loader, eval_interations: int):
     model.eval()
     out = {}
-    for mode in ['train', 'valid']:
+    for mode in ["train", "valid"]:
         losses = torch.zeros(eval_interations)
         for k in range(eval_interations):
             x, y = loader.get_data(mode)
