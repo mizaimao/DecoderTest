@@ -7,12 +7,12 @@ import torch
 from doe.models import get_models
 from doe.models.blocks import get_valid_loss
 from doe.data.dataloaders import get_loader
-from doe.configs.default import DefaultConfig, MIDIConfig
+from doe.configs.default import current_config
 from doe.utils.saver import save
 
 
 DEVICE: str = "cuda"
-config = MIDIConfig()
+config = current_config
 
 
 # Defined functions to feed the data.
@@ -32,9 +32,8 @@ print_every: int = config.print_every
 preview_size: int = config.preview_size
 patience: int = config.patience
 save_loc: Path = Path(config.save_loc)
-last_loss: float = float("inf")
+last_best_loss: float = float("inf")
 last_best_i: int = None
-
 
 
 # Simple training loop.
@@ -54,9 +53,14 @@ for step_i in tqdm.tqdm(range(epochs), total=epochs):
     if step_i % print_every == 0 or step_i == epochs - 1:
         val_loss: float = get_valid_loss(model=model, loader=loader)
 
-        print("Train {:.04f}, Validation {:.04f}".format(loss.item(), val_loss.item()))
-        if val_loss < last_loss:
-            last_loss = val_loss
+        print(
+            "Train {:.04f}, Validation {:.04f}      Best {:.04f} at {} ago.".format(
+                loss.item(), val_loss.item(), last_best_loss, step_i - last_best_i
+            )
+        )
+        if val_loss < last_best_loss:
+            last_best_i = step_i
+            last_best_loss = val_loss
             save(
                 model=model,
                 loc=save_loc.joinpath(
@@ -64,6 +68,9 @@ for step_i in tqdm.tqdm(range(epochs), total=epochs):
                 ),
             )
 
+        if step_i - last_best_i >= patience:
+            print(f"Patiance ({patience}) ran out at {step_i} iteration.")
+            break
 
 # Now take a preview of the generated contents.
 generated: torch.Tensor = model.generate(

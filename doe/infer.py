@@ -2,11 +2,11 @@ from pathlib import Path
 import torch
 
 from doe.models import get_models
-from doe.configs.default import DefaultConfig, MIDIConfig
+from doe.configs.default import current_config, DefaultConfig, MIDIConfig
 from doe.data.dataloaders import get_loader
 
 DEVICE: str = "cuda"
-config = MIDIConfig()
+config = current_config
 model_loc: Path = Path(config.save_loc).joinpath("chicken.pt")
 midi_save_loc: Path = Path(config.save_loc).joinpath("midichicken.mid")
 
@@ -37,7 +37,6 @@ if isinstance(config, MIDIConfig):
         try:
             converted_back_midi = loader.decode(generated)
             converted_back_midi.dump_midi(midi_save_loc)
-
             break
         except KeyError:
             tries += 1
