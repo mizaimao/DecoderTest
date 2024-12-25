@@ -2,12 +2,16 @@ from pathlib import Path
 import torch
 
 from doe.models import get_models
-from doe.configs.default import DefaultConfig
+from doe.configs.default import DefaultConfig, MIDIConfig
 from doe.data.dataloaders import get_loader
 
 DEVICE: str = "cuda"
-config: DefaultConfig = DefaultConfig()
+config = MIDIConfig()
 model_loc: Path = Path(config.save_loc).joinpath("chicken.pt")
+midi_save_loc: Path = Path(config.save_loc).joinpath("midichicken.mid")
+
+torch.set_default_device(DEVICE)
+
 
 loader = get_loader("text", config=config)
 model = get_models(
@@ -25,4 +29,20 @@ model.eval()
 generated: torch.Tensor = model.generate(
     torch.zeros((1, 1), dtype=torch.int), config.preview_size
 )
-print(loader.decode(generated[0].tolist()))
+
+if isinstance(config, MIDIConfig):
+
+    tries: int = 0
+    while True:
+        try:
+            converted_back_midi = loader.decode(generated)
+            converted_back_midi.dump_midi(midi_save_loc)
+
+            break
+        except KeyError:
+            tries += 1
+            print(f"Key error on {tries}th trial, trying again...")
+    print(f"Generated after {tries} tires.")
+
+else:
+    print(loader.decode(generated[0].tolist()))

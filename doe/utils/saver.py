@@ -9,3 +9,9 @@ def save(
         print("Not saving becasue location was not given.")
         return 
     torch.save(model.state_dict(), loc)
+
+
+def count_parameters(model):
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Total parameters: {total_params}")
+    return total_params

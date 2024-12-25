@@ -7,12 +7,12 @@ import torch
 from doe.models import get_models
 from doe.models.blocks import get_valid_loss
 from doe.data.dataloaders import get_loader
-from doe.configs.default import DefaultConfig
+from doe.configs.default import DefaultConfig, MIDIConfig
 from doe.utils.saver import save
 
 
 DEVICE: str = "cuda"
-config: DefaultConfig = DefaultConfig()
+config = MIDIConfig()
 
 
 # Defined functions to feed the data.
@@ -30,8 +30,11 @@ model = get_models(
 epochs: int = config.epochs
 print_every: int = config.print_every
 preview_size: int = config.preview_size
+patience: int = config.patience
 save_loc: Path = Path(config.save_loc)
 last_loss: float = float("inf")
+last_best_i: int = None
+
 
 
 # Simple training loop.
