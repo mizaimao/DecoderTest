@@ -32,7 +32,7 @@ class MidiTokWrapper:
         from miditok import REMI, TokenizerConfig
         from symusic import Score
 
-        vol_size: int = 400
+        vol_size: int = 100
 
         # Creating a multitrack tokenizer, read the doc to explore all the parameters
         config = TokenizerConfig(num_velocities=16, use_chords=True, use_programs=True)
