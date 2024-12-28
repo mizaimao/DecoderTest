@@ -15,6 +15,7 @@ def get_loader(name: str = "text", config: DefaultConfig = None):
             batch_size=config.batch_size,
             file_path=config.input_path,
             train_val_split=config.train_valid_split,
+            tokenizer=config.tokenizer,
         )
 
     else:
@@ -30,12 +31,13 @@ class TextLoader:
         step_size: int,
         batch_size: int,
         file_path: str = "/home/frank/Projects/DecoderTest/inputs/text.txt",
+        tokenizer: str = "not_provided",
         train_val_split: float = 0.8,
     ):
         # Sanity checks.
-        if not Path(file_path).is_file():
+        if not Path(file_path).exists():
             raise FileNotFoundError
-        self.tokenizer = get_tokenizer(file_path=file_path, name="tiktoken")
+        self.tokenizer = get_tokenizer(file_path=file_path, name=tokenizer)
 
         self.step_size: int = step_size
         self.batch_size: int = batch_size
@@ -70,6 +72,8 @@ class TextLoader:
             data = self.valid_data
         else:
             raise NotImplementedError
+        
+        # print("chickwufhewiufhew", len(data))
 
         indices: torch.Tensor = torch.randint(
             len(data) - self.step_size, (self.batch_size,)
