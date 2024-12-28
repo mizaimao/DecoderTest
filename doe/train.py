@@ -33,7 +33,7 @@ preview_size: int = config.preview_size
 patience: int = config.patience
 save_loc: Path = Path(config.save_loc)
 last_best_loss: float = float("inf")
-last_best_i: int = None
+last_best_i: int = 0
 
 
 # Simple training loop.
@@ -53,11 +53,6 @@ for step_i in tqdm.tqdm(range(epochs), total=epochs):
     if step_i % print_every == 0 or step_i == epochs - 1:
         val_loss: float = get_valid_loss(model=model, loader=loader)
 
-        print(
-            "Train {:.04f}, Validation {:.04f}      Best {:.04f} at {} ago.".format(
-                loss.item(), val_loss.item(), last_best_loss, step_i - last_best_i
-            )
-        )
         if val_loss < last_best_loss:
             last_best_i = step_i
             last_best_loss = val_loss
@@ -67,6 +62,11 @@ for step_i in tqdm.tqdm(range(epochs), total=epochs):
                     "final.pt" if step_i == epochs - 1 else "chicken.pt"
                 ),
             )
+        print(
+            "Train {:.04f}, Validation {:.04f}      Best {:.04f} at {} ago.".format(
+                loss.item(), val_loss.item(), last_best_loss, step_i - last_best_i
+            )
+        )
 
         if step_i - last_best_i >= patience:
             print(f"Patiance ({patience}) ran out at {step_i} iteration.")
